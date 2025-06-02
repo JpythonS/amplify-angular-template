@@ -1,0 +1,157 @@
+<div class="reminder-container">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="back-btn" type="button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+            <h1 class="title">Novo Lembrete</h1>
+            <div class="spacer"></div>
+        </div>
+    </header>
+
+    <!-- Form -->
+    <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()" class="form-container">
+        <!-- Title Input -->
+        <div class="input-group">
+            <label class="label" for="title">
+                O que você gostaria de lembrar?
+            </label>
+            <input id="title" type="text" formControlName="title" class="input" [class.error]="isFieldInvalid('title')"
+                placeholder="Ex: Ligar para o médico" maxlength="100" />
+            <div class="char-count">
+                {{ reminderForm.get('title')?.value?.length || 0 }}/100
+            </div>
+            <div *ngIf="isFieldInvalid('title')" class="error-message">
+                Por favor, digite o que você quer lembrar
+            </div>
+        </div>
+
+        <!-- Description Input -->
+        <div class="input-group">
+            <label class="label" for="description">
+                Detalhes (opcional)
+            </label>
+            <textarea id="description" formControlName="description" class="textarea"
+                placeholder="Adicione mais informações se necessário..." rows="3" maxlength="300"></textarea>
+            <div class="char-count">
+                {{ reminderForm.get('description')?.value?.length || 0 }}/300
+            </div>
+        </div>
+
+        <!-- Date and Time -->
+        <div class="datetime-section">
+            <h3 class="section-title">Quando você quer ser lembrado?</h3>
+
+            <div class="datetime-grid">
+                <div class="input-group">
+                    <label class="label" for="date">Data</label>
+                    <input id="date" type="date" formControlName="date" class="input date-input"
+                        [class.error]="isFieldInvalid('date')" [min]="minDate" />
+                    <div *ngIf="isFieldInvalid('date')" class="error-message">
+                        Escolha uma data válida
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="time">Horário</label>
+                    <input id="time" type="time" formControlName="time" class="input time-input"
+                        [class.error]="isFieldInvalid('time')" />
+                    <div *ngIf="isFieldInvalid('time')" class="error-message">
+                        Escolha um horário
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Date Options -->
+            <div class="quick-options">
+                <h4 class="quick-title">Ou escolha uma opção rápida:</h4>
+                <div class="quick-buttons">
+                    <button type="button" class="quick-btn" [class.active]="selectedQuickOption === 'today'"
+                        (click)="setQuickDate('today')">
+                        Hoje
+                    </button>
+                    <button type="button" class="quick-btn" [class.active]="selectedQuickOption === 'tomorrow'"
+                        (click)="setQuickDate('tomorrow')">
+                        Amanhã
+                    </button>
+                    <button type="button" class="quick-btn" [class.active]="selectedQuickOption === 'week'"
+                        (click)="setQuickDate('week')">
+                        Próxima semana
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority -->
+        <div class="priority-section">
+            <h3 class="section-title">Qual a importância?</h3>
+            <div class="priority-options">
+                <label class="priority-option" [class.selected]="reminderForm.get('priority')?.value === 'LOW'">
+                    <input type="radio" formControlName="priority" value="LOW" />
+                    <div class="priority-content">
+                        <div class="priority-icon low">📝</div>
+                        <span>Baixa</span>
+                    </div>
+                </label>
+                <label class="priority-option" [class.selected]="reminderForm.get('priority')?.value === 'MEDIUM'">
+                    <input type="radio" formControlName="priority" value="MEDIUM" />
+                    <div class="priority-content">
+                        <div class="priority-icon medium">⚡</div>
+                        <span>Média</span>
+                    </div>
+                </label>
+                <label class="priority-option" [class.selected]="reminderForm.get('priority')?.value === 'HIGH'">
+                    <input type="radio" formControlName="priority" value="HIGH" />
+                    <div class="priority-content">
+                        <div class="priority-icon high">🔥</div>
+                        <span>Alta</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Category -->
+        <div class="input-group">
+            <label class="label" for="category">
+                Categoria (opcional)
+            </label>
+            <select id="category" formControlName="category" class="select">
+                <option value="">Escolha uma categoria</option>
+                <option value="trabalho">💼 Trabalho</option>
+                <option value="pessoal">👤 Pessoal</option>
+                <option value="saude">🏥 Saúde</option>
+                <option value="compras">🛒 Compras</option>
+                <option value="familia">👨‍👩‍👧‍👦 Família</option>
+                <option value="estudos">📚 Estudos</option>
+                <option value="outros">📋 Outros</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="submit-section">
+            <button type="submit" class="submit-btn" [disabled]="reminderForm.invalid || isSubmitting"
+                [class.loading]="isSubmitting">
+                <span *ngIf="!isSubmitting">Criar Lembrete</span>
+                <span *ngIf="isSubmitting" class="loading-text">
+                    <div class="spinner"></div>
+                    Criando...
+                </span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Success Message -->
+    <div *ngIf="showSuccess" class="success-toast">
+        <div class="success-content">
+            <svg class="success-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M16.667 5L7.5 14.167l-4.167-4.167" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Lembrete criado com sucesso! 🎉
+        </div>
+    </div>
+</div>

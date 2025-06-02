@@ -12,7 +12,18 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
+
+  Reminder: 
+  a.model({
+    title: a.string().required(),
+    description: a.string(),
+    reminderDate: a.datetime().required(),
+    isCompleted: a.boolean().default(false),
+    priority: a.enum(['LOW', 'MEDIUM', 'HIGH']),
+    category: a.string()
+  })
 });
+
 
 export type Schema = ClientSchema<typeof schema>;
 

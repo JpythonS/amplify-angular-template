@@ -61,7 +61,7 @@ export class CreateReminderComponent {
       };
 
       this.reminderService.createReminder(reminderData).subscribe({
-        next: (response) => {
+        next: () => {
           this.isSubmitting = false;
           this.showSuccess = true;
           this.reminderForm.reset();
@@ -72,7 +72,7 @@ export class CreateReminderComponent {
             this.showSuccess = false;
           }, 3000);
         },
-        error: (error) => {
+        error: () => {
           this.isSubmitting = false;
           console.error('Error creating reminder');
           // Here you could show an error message to the user

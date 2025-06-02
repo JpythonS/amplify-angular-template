@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { generateClient } from 'aws-amplify/api';
-import { Schema } from '../../../amplify/data/resource';
+import type { Schema } from '../../../amplify/data/resource';
 import { from, Observable } from 'rxjs';
 
 @Injectable({
@@ -9,14 +9,23 @@ import { from, Observable } from 'rxjs';
 export class ReminderService {
   private client = generateClient<Schema>();
 
-  createReminder(reminder: {
-    title: string;
-    description?: string;
-    reminderDate: string;
-    priority: 'LOW' | 'MEDIUM' | 'HIGH';
-    category: string;
-  } | any): Observable<any> {
-    return from(this.client.models.Reminder.create(reminder));
+  async createReminder(
+    reminder:
+      | {
+          title: string;
+          description?: string;
+          reminderDate: string;
+          priority: 'LOW' | 'MEDIUM' | 'HIGH';
+          category: string;
+        }
+      | any,
+  ) {
+    try {
+      return await this.client.models.Reminder.create(reminder);
+    } catch (error) {
+      console.error('Erro ao criar lembrete:', error);
+      throw error;
+    }
   }
 
   getReminders(): Observable<any> {

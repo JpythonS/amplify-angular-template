@@ -45,7 +45,7 @@ export class CreateReminderComponent {
     this.minDate = today.toISOString().split('T')[0];
   }
 
-  public onSubmit(): void {
+  public async onSubmit(): Promise<void> {
     if (this.reminderForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
 
@@ -60,24 +60,41 @@ export class CreateReminderComponent {
         categoria: formValue.category || undefined,
       };
 
-      this.reminderService.createReminder(reminderData).subscribe({
-        next: () => {
-          this.isSubmitting = false;
+      try {
+        await this.reminderService.createReminder(reminderData);
           this.showSuccess = true;
           this.reminderForm.reset();
           this.reminderForm.patchValue({ priority: 'MEDIUM' });
           this.selectedQuickOption = '';
-
           setTimeout(() => {
             this.showSuccess = false;
           }, 3000);
-        },
-        error: () => {
-          this.isSubmitting = false;
+      } catch(error) {
+        
           console.error('Error creating reminder');
           // Here you could show an error message to the user
-        },
-      });
+      } finally {
+        this.isSubmitting = false;
+      }
+
+      // this.reminderService.createReminder(reminderData).subscribe({
+      //   next: () => {
+      //     this.isSubmitting = false;
+      //     this.showSuccess = true;
+      //     this.reminderForm.reset();
+      //     this.reminderForm.patchValue({ priority: 'MEDIUM' });
+      //     this.selectedQuickOption = '';
+
+      //     setTimeout(() => {
+      //       this.showSuccess = false;
+      //     }, 3000);
+      //   },
+      //   error: () => {
+      //     this.isSubmitting = false;
+      //     console.error('Error creating reminder');
+      //     // Here you could show an error message to the user
+      //   },
+      // });
     } else {
       // Mark all fields as touched to show validation errors
       Object.keys(this.reminderForm.controls).forEach((key) => {

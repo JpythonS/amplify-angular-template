@@ -13,14 +13,17 @@ const schema = a.schema({
     })
     .authorization((allow) => [allow.owner()]),
 
-  Reminder: a
+   Reminder: a
     .model({
       title: a.string().required(),
       description: a.string(),
-      reminderDate: a.datetime().required(),
+      reminderDate: a.date().required(), // Renomeado para consistência
+      reminderTime: a.time().required(), // Adicionado para armazenar o horário
       isCompleted: a.boolean().default(false),
       priority: a.enum(['LOW', 'MEDIUM', 'HIGH']),
       category: a.string(),
+      repeat: a.enum(['never', 'daily', 'weekly']), // Adicionado para repetição
+      daysOfWeek: a.string().array(), // Adicionado para dias da semana (ex: ['MONDAY', 'TUESDAY'])
     })
     .authorization((allow) => allow.owner()),
 });

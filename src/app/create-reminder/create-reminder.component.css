@@ -326,3 +326,123 @@
     max-width: 400px;
   }
 }
+
+.repeat-section {
+  margin-top: 2rem;
+}
+
+.repeat-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.repeat-option {
+  flex: 1; /* Ocupa espaço igualmente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #495057;
+  position: relative;
+  text-align: center;
+}
+
+.repeat-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.repeat-option.selected {
+  border-color: #007bff;
+  background-color: #e7f3ff;
+  color: #007bff;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.1);
+}
+
+.repeat-option:hover {
+  background-color: #f0f8ff; /* Fundo leve ao passar o mouse */
+}
+
+/* Days of Week Selection */
+.days-of-week-selection {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+}
+
+.days-of-week-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.day-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 20px; /* Botões de dia mais arredondados */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  position: relative;
+  user-select: none; /* Impede seleção de texto */
+}
+
+.day-option input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.day-option.selected {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+.day-option:hover {
+  background-color: #dee2e6;
+}
+
+/* Responsividade Básica */
+@media (max-width: 768px) {
+  .header-content,
+  .form-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .datetime-grid {
+    grid-template-columns: 1fr; /* Em telas menores, data e hora em colunas separadas */
+  }
+
+  .priority-options,
+  .repeat-options,
+  .quick-buttons {
+    flex-direction: column; /* Botões em coluna em telas menores */
+    align-items: stretch; /* Estica para largura total */
+  }
+
+  .priority-option,
+  .repeat-option,
+  .quick-btn {
+    flex: none; /* Desabilita flex-grow */
+    width: 100%; /* Ocupa a largura total */
+  }
+}

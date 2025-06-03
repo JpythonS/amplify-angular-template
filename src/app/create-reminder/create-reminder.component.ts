@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { ReminderService } from '../services/reminder.service';
@@ -22,9 +24,21 @@ export class CreateReminderComponent {
   public isSubmitting = false;
   public showSuccess = false;
 
+  // Novos estados para a repetição
+  public daysOfWeek = [
+    { label: 'Dom', value: 'SUNDAY' },
+    { label: 'Seg', value: 'MONDAY' },
+    { label: 'Ter', value: 'TUESDAY' },
+    { label: 'Qua', value: 'WEDNESDAY' },
+    { label: 'Qui', value: 'THURSDAY' },
+    { label: 'Sex', value: 'FRIDAY' },
+    { label: 'Sáb', value: 'SATURDAY' },
+  ];
+  public selectedDays: string[] = [];
+
   constructor(
     private fb: FormBuilder,
-    private reminderService: ReminderService
+    private reminderService: ReminderService,
   ) {
     this.reminderForm = this.fb.group({
       title: [
@@ -40,9 +54,60 @@ export class CreateReminderComponent {
       time: ['', Validators.required],
       priority: ['MEDIUM', Validators.required],
       category: [''],
-    });
+      repeat: ['never', Validators.required], // Valor inicial 'never'
+      daysOfWeek: [[] as string[]], // Inicializa como array vazio para o controle
+    }, { validators: this.daysOfWeekValidator() });
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];
+  }
+
+  ngOnInit(): void {
+    // Escuta mudanças no controle 'repeat' para aplicar/remover validação
+    this.reminderForm.get('repeat')?.valueChanges.subscribe(value => {
+      const daysOfWeekControl = this.reminderForm.get('daysOfWeek');
+      if (daysOfWeekControl) {
+        if (value === 'weekly') {
+          daysOfWeekControl.setValidators(Validators.required);
+          daysOfWeekControl.updateValueAndValidity(); // Garante que a validação é aplicada
+        } else {
+          daysOfWeekControl.clearValidators();
+          daysOfWeekControl.updateValueAndValidity(); // Remove a validação
+          this.selectedDays = []; // Limpa os dias selecionados se a repetição mudar
+        }
+      }
+    });
+  }
+
+   // Validador personalizado para garantir que daysOfWeek não esteja vazio se 'weekly' for selecionado
+  daysOfWeekValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const repeatControl = control.get('repeat');
+      const daysOfWeekControl = control.get('daysOfWeek');
+
+      if (repeatControl?.value === 'weekly' && (!daysOfWeekControl?.value || daysOfWeekControl.value.length === 0)) {
+        return { 'daysOfWeekRequired': true };
+      }
+      return null;
+    };
+  }
+
+  public onRepeatChange(repeatValue: string): void {
+    const daysOfWeekControl = this.reminderForm.get('daysOfWeek');
+    if (repeatValue !== 'weekly') {
+      this.selectedDays = []; // Limpa os dias selecionados
+      daysOfWeekControl?.setValue([]); // Zera o valor do controle do formulário
+    }
+  }
+
+  public toggleDay(dayValue: string): void {
+    const index = this.selectedDays.indexOf(dayValue);
+    if (index > -1) {
+      this.selectedDays.splice(index, 1); // Remove o dia
+    } else {
+      this.selectedDays.push(dayValue); // Adiciona o dia
+    }
+    // Atualiza o valor do controle daysOfWeek para que o validador reaja
+    this.reminderForm.get('daysOfWeek')?.setValue(this.selectedDays);
   }
 
   public async onSubmit(): Promise<void> {
@@ -62,39 +127,19 @@ export class CreateReminderComponent {
 
       try {
         await this.reminderService.createReminder(reminderData);
-          this.showSuccess = true;
-          this.reminderForm.reset();
-          this.reminderForm.patchValue({ priority: 'MEDIUM' });
-          this.selectedQuickOption = '';
-          setTimeout(() => {
-            this.showSuccess = false;
-          }, 3000);
-      } catch(error) {
-        
-          console.error('Error creating reminder');
-          // Here you could show an error message to the user
+        this.showSuccess = true;
+        this.reminderForm.reset();
+        this.reminderForm.patchValue({ priority: 'MEDIUM' });
+        this.selectedQuickOption = '';
+        setTimeout(() => {
+          this.showSuccess = false;
+        }, 3000);
+      } catch (error) {
+        console.error('Error creating reminder');
+        // Here you could show an error message to the user
       } finally {
         this.isSubmitting = false;
       }
-
-      // this.reminderService.createReminder(reminderData).subscribe({
-      //   next: () => {
-      //     this.isSubmitting = false;
-      //     this.showSuccess = true;
-      //     this.reminderForm.reset();
-      //     this.reminderForm.patchValue({ priority: 'MEDIUM' });
-      //     this.selectedQuickOption = '';
-
-      //     setTimeout(() => {
-      //       this.showSuccess = false;
-      //     }, 3000);
-      //   },
-      //   error: () => {
-      //     this.isSubmitting = false;
-      //     console.error('Error creating reminder');
-      //     // Here you could show an error message to the user
-      //   },
-      // });
     } else {
       // Mark all fields as touched to show validation errors
       Object.keys(this.reminderForm.controls).forEach((key) => {

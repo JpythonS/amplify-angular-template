@@ -86,6 +86,46 @@
             </div>
         </div>
 
+        <!-- Repeat -->
+        <div class="repeat-section">
+            <h3 class="section-title">Repetir Lembrete</h3>
+
+            <div class="repeat-options">
+                <label class="repeat-option">
+                    <input type="radio" formControlName="repeat" value="never" (change)="onRepeatChange('never')" />
+                    <span>Não repetir</span>
+                </label>
+
+                <label class="repeat-option">
+                    <input type="radio" formControlName="repeat" value="daily" (change)="onRepeatChange('daily')" />
+                    <span>Diariamente</span>
+                </label>
+
+                <label class="repeat-option">
+                    <input type="radio" formControlName="repeat" value="weekly" (change)="onRepeatChange('weekly')" />
+                    <span>Semanalmente</span>
+                </label>
+            </div>
+
+            <div class="days-of-week-selection" *ngIf="reminderForm.get('repeat')?.value === 'weekly'">
+                <label class="label">Em quais dias?</label>
+                <div class="days-of-week-options">
+                    <label *ngFor="let day of daysOfWeek" class="day-option"
+                        [class.selected]="selectedDays.includes(day.value)">
+                        <input type="checkbox" [value]="day.value" (change)="toggleDay(day.value)" />
+                        <span>{{ day.label }}</span>
+                    </label>
+                </div>
+                <div *ngIf="
+            reminderForm.get('repeat')?.value === 'weekly' &&
+            selectedDays.length === 0
+          " class="error-message">
+                    Selecione pelo menos um dia da semana
+                </div>
+            </div>
+        </div>
+
+
         <!-- Priority -->
         <div class="priority-section">
             <h3 class="section-title">Qual a importância?</h3>
